@@ -1,0 +1,14 @@
+# Training artifacts (large binaries)
+checkpoints/
+debug/
+*.safetensors
+*.opt.pt
+
+# Outputs
+output_*.png
+output_*.mp4
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/

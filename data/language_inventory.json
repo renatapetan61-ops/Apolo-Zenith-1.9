@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "name": "Apolo Zenith 1.9 — Programming Language Inventory (seed)",
+    "status": "PROTOTYPE — seed inventory of 25 widely-used languages",
+    "target": "approx. 2500 catalogued languages (master spec §7.1) — ASPIRATIONAL, not achieved",
+    "coverage_note": "Each entry lists verifiable public facts only. Model support for these languages is NOT claimed: the coding engine is PLANNED. Extend this file before claiming broader coverage.",
+    "fields": ["name", "aliases", "paradigms", "typing", "execution", "first_appeared", "notes"]
+  },
+  "languages": [
+    {"name": "Python", "aliases": ["py", "python3"], "paradigms": ["multi-paradigm", "imperative", "oop", "functional"], "typing": "dynamic, strong, gradual (type hints)", "execution": "interpreter (CPython), bytecode VM, JIT variants (PyPy)", "first_appeared": 1991, "notes": "reference implementation CPython"},
+    {"name": "JavaScript", "aliases": ["js", "ecmascript", "es"], "paradigms": ["multi-paradigm", "event-driven", "functional"], "typing": "dynamic, weak", "execution": "JIT (V8, SpiderMonkey)", "first_appeared": 1995, "notes": "standardized as ECMAScript"},
+    {"name": "TypeScript", "aliases": ["ts"], "paradigms": ["multi-paradigm", "oop", "functional"], "typing": "static, structural", "execution": "transpiles to JavaScript", "first_appeared": 2012, "notes": "types erased at runtime"},
+    {"name": "Java", "aliases": [], "paradigms": ["oop", "imperative"], "typing": "static, nominal", "execution": "JVM bytecode, JIT", "first_appeared": 1995, "notes": "platform: JVM"},
+    {"name": "C", "aliases": [], "paradigms": ["imperative", "procedural"], "typing": "static, weak", "execution": "compiled (native)", "first_appeared": 1972, "notes": "ISO/IEC 9899 standard"},
+    {"name": "C++", "aliases": ["cpp", "cxx"], "paradigms": ["multi-paradigm", "oop", "generic"], "typing": "static, strong", "execution": "compiled (native)", "first_appeared": 1985, "notes": "ISO standard; revisions 11/14/17/20/23"},
+    {"name": "C#", "aliases": ["csharp", "cs"], "paradigms": ["oop", "functional"], "typing": "static, nominal", "execution": ".NET (CLR), JIT", "first_appeared": 2000, "notes": "ECMA-334 standard"},
+    {"name": "Go", "aliases": ["golang"], "paradigms": ["concurrent", "imperative"], "typing": "static, inferred", "execution": "compiled (native)", "first_appeared": 2009, "notes": "goroutines + channels"},
+    {"name": "Rust", "aliases": ["rs"], "paradigms": ["multi-paradigm", "functional", "systems"], "typing": "static, strong, affine (ownership)", "execution": "compiled (LLVM)", "first_appeared": 2010, "notes": "memory safety without GC"},
+    {"name": "Ruby", "aliases": ["rb"], "paradigms": ["oop", "dynamic"], "typing": "dynamic, strong", "execution": "interpreter (CRuby), JIT", "first_appeared": 1995, "notes": "Rails ecosystem"},
+    {"name": "PHP", "aliases": [], "paradigms": ["imperative", "oop"], "typing": "dynamic, gradual (7.0+)", "execution": "interpreter, JIT (8.0+)", "first_appeared": 1995, "notes": "web-focused; Zend Engine"},
+    {"name": "Swift", "aliases": [], "paradigms": ["multi-paradigm", "protocol-oriented"], "typing": "static, inferred", "execution": "compiled (LLVM)", "first_appeared": 2014, "notes": "Apple platforms; open source"},
+    {"name": "Kotlin", "aliases": ["kt"], "paradigms": ["oop", "functional", "concurrent"], "typing": "static, inferred", "execution": "JVM/LLVM native/JS", "first_appeared": 2011, "notes": "interoperable with Java"},
+    {"name": "Scala", "aliases": [], "paradigms": ["functional", "oop"], "typing": "static, inferred", "execution": "JVM (also Scala.js, Native)", "first_appeared": 2004, "notes": "fusion of FP and OO"},
+    {"name": "R", "aliases": [], "paradigms": ["functional", "array", "statistical"], "typing": "dynamic", "execution": "interpreter", "first_appeared": 1993, "notes": "statistics lingua franca"},
+    {"name": "Lua", "aliases": [], "paradigms": ["imperative", "scripting"], "typing": "dynamic", "execution": "interpreter, embeddable", "first_appeared": 1993, "notes": "game scripting; small footprint"},
+    {"name": "Perl", "aliases": [], "paradigms": ["multi-paradigm", "scripting"], "typing": "dynamic", "execution": "interpreter", "first_appeared": 1987, "notes": "text processing heritage"},
+    {"name": "Haskell", "aliases": ["hs"], "paradigms": ["purely functional", "lazy"], "typing": "static, inferred (Hindley–Milner)", "execution": "compiled (GHC)", "first_appeared": 1990, "notes": "pure lambda calculus heritage"},
+    {"name": "Elixir", "aliases": [], "paradigms": ["functional", "concurrent", "distributed"], "typing": "dynamic", "execution": "BEAM VM", "first_appeared": 2011, "notes": "Erlang VM; fault tolerance"},
+    {"name": "Dart", "aliases": [], "paradigms": ["oop", "functional"], "typing": "static, sound (2.12+)", "execution": "JIT/AOT (Flutter)", "first_appeared": 2011, "notes": "Flutter UI toolkit"},
+    {"name": "Julia", "aliases": [], "paradigms": ["multiple dispatch", "scientific"], "typing": "dynamic, optional annotations", "execution": "JIT (LLVM)", "first_appeared": 2012, "notes": "numeric computing focus"},
+    {"name": "Shell (POSIX)", "aliases": ["sh", "bash"], "paradigms": ["scripting", "imperative"], "typing": "untyped (strings)", "execution": "interpreter", "first_appeared": 1971, "notes": "Bash is the de facto default"},
+    {"name": "SQL", "aliases": [], "paradigms": ["declarative", "relational"], "typing": "static (schema)", "execution": "query engine", "first_appeared": 1974, "notes": "ISO/IEC 9075; many dialects"},
+    {"name": "Fortran", "aliases": [], "paradigms": ["imperative", "array"], "typing": "static, strong", "execution": "compiled (native)", "first_appeared": 1957, "notes": "oldest widely-used HLL (HPC)"},
+    {"name": "Assembly (x86-64)", "aliases": ["asm", "x86"], "paradigms": ["low-level", "imperative"], "typing": "untyped (registers/memory)", "execution": "native machine code", "first_appeared": 1978, "notes": "representative of the assembly family"}
+  ]
+}

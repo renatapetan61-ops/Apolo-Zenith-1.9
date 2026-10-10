@@ -1,0 +1,55 @@
+# Apolo Zenith 1.9 — prototype 125M-class configuration
+#
+# HONEST SIZE (computed by scripts/check_configs.py, formula validated in
+# tests/test_plan_math.py against real instantiation):
+#   total parameters  : 126,080,640 (~126.1M)   <- matches the "125M-class" name
+#   active per token  :  72,996,480 (~73.0M)    (top-2 of 4 experts)
+#
+# Training this still requires a multi-GPU node or days of CPU; the config is
+# a design reference for the next scaling step (see docs/SCALING_REQUIREMENTS.md).
+model:
+  name: "Apolo Zenith 1.9 (prototype 125M-class)"
+  backbone:
+    vocab_size: 320          # overridden by the tokenizer at runtime
+    hidden_size: 640
+    num_layers: 12
+    num_heads: 10
+    head_dim: 64
+    intermediate_size: 1152   # per-expert FFN (SwiGLU)
+    max_seq_len: 1024
+    dropout: 0.0
+    moe:
+      num_experts: 4
+      top_k: 2
+      aux_loss_weight: 0.01
+      capacity_factor: 1.25
+  vae:
+    in_channels: 3
+    latent_channels: 16
+    base_channels: 64
+    channel_multipliers: [1, 2, 4]
+    num_res_blocks: 2
+    scaling_factor: 0.18215
+  video:
+    latent_channels: 16
+    num_frames: 16
+    latent_size: 32
+    hidden_size: 640
+    num_layers: 8
+    num_heads: 10
+    patch_size: 2
+
+training:
+  batch_size: 4
+  seq_len: 256
+  steps: 2000
+  lr: 3.0e-4
+  weight_decay: 0.1
+  warmup_steps: 100
+  grad_clip_norm: 1.0
+  seed: 1337
+  log_every: 20
+  eval_every: 200
+  checkpoint_dir: "checkpoints/125m"
+  data_path: "data/sample_corpus/corpus.txt"
+

@@ -1,0 +1,69 @@
+# Apolo Zenith 1.9 — TARGET architecture specification
+#
+# !!! STATUS: PLANNED — NOT TRAINED — REQUIRES GPU CLUSTER !!!
+# This config is a DESIGN TARGET only. It has never been instantiated or
+# trained here. Exact parameter counts are computed analytically by
+# scripts/plan_199b.py (formulas validated against real instantiation on
+# tiny configs by tests/test_plan_math.py). Per the master prompt:
+# "architecture implemented != capability learned".
+#
+# Shape (computed in plan_199b.py):
+#   total params      ~2.00e11 (~200B, spec target ~199B)
+#   active per token  ~2.87e10 (~29B) with top-8 of 96 experts
+#   attention: full MHA in prototype formula (GQA listed as PLANNED below)
+
+model:
+  name: "Apolo Zenith 1.9"
+  total_parameters_target: 199000000000   # aspiration, NOT trained weights
+  backbone:
+    vocab_size: 131072      # byte-level + large merge table (PLANNED tokenizer scale)
+    hidden_size: 7168
+    num_layers: 59
+    num_heads: 56
+    head_dim: 128
+    intermediate_size: 1536  # per-expert FFN (small experts, many of them)
+    max_seq_len: 32768      # long-context target (RoPE + NTK scaling: PLANNED)
+    dropout: 0.0
+    rope_base: 5000000.0
+    tied_embeddings: true
+    moe:
+      num_experts: 96
+      top_k: 8
+      aux_loss_weight: 0.01
+      capacity_factor: 1.25
+  vae:
+    in_channels: 3
+    latent_channels: 64
+    base_channels: 256
+    channel_multipliers: [1, 2, 4, 8]
+    num_res_blocks: 3
+    scaling_factor: 0.18215
+  video:
+    latent_channels: 64
+    num_frames: 128
+    latent_size: 128
+    hidden_size: 7168
+    num_layers: 48
+    num_heads: 56
+    patch_size: 2
+
+training:
+  batch_size: 8             # per-GPU micro-batch; global batch via data/expert parallel
+  seq_len: 8192
+  steps: 100000
+  lr: 3.0e-4
+  weight_decay: 0.1
+  warmup_steps: 2000
+  grad_clip_norm: 1.0
+  seed: 1337
+  log_every: 10
+  eval_every: 1000
+  checkpoint_dir: "checkpoints/199b"
+  data_path: "data/curated_corpus/"   # licensed datasets with recorded provenance
+
+# PLANNED (not implemented) beyond the prototype scope of this repository:
+#   - grouped-query attention (num_kv_heads)        - expert parallelism (EP)
+#   - tensor/pipeline parallelism (TP/PP)           - FP8 training
+#   - context extension via NTK-aware RoPE          - 8K UHD delivery pipeline
+#   - audio codec + text-to-audio                   - generative super-resolution
+
