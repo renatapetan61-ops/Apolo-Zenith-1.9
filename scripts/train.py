@@ -37,6 +37,8 @@ def main() -> int:
     ap.add_argument("--corpus", default=None)
     ap.add_argument("--merges", type=int, default=64,
                     help="BPE merges learned from the corpus")
+    ap.add_argument("--resume", default=None,
+                    help="checkpoint stem to resume from (e.g. checkpoints/125m/az19_latest)")
     args = ap.parse_args()
 
     torch.manual_seed(0)
@@ -70,6 +72,9 @@ def main() -> int:
     print(f"model params: {n_params:,}")
 
     trainer = Trainer(model, tcfg, train_ds, val_ds, mcfg)
+    if args.resume:
+        trainer.resume(ROOT / args.resume)
+        print(f"resumed from {args.resume}: step={trainer.state.step}")
     state = trainer.train()
     # persist the tokenizer next to the checkpoint (needed to reuse the model)
     ckpt_dir = ROOT / tcfg.checkpoint_dir

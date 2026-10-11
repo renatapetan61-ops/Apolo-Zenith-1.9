@@ -10,7 +10,7 @@ ambiente (requisitos em `docs/SCALING_REQUIREMENTS.md`).
 | Componente | Implementado | Testado | Treinado | Estado | Evidência |
 |---|---|---|---|---|---|
 | Tokenizer byte-level + BPE | sim | sim | n/a (treino de merges é determinístico e testado) | IMPLEMENTED, TESTED | `tests/test_tokenizer.py` |
-| Backbone decoder (RoPE, RMSNorm, SwiGLU) | sim | sim | **sim (protótipo tiny)** | PROTOTYPE, TRAINED | `checkpoints/tiny/training_log.jsonl`, `tests/test_training.py` |
+| Backbone decoder (RoPE, RMSNorm, SwiGLU) | sim | sim | **sim — 2 escalas**: tiny (250.944 params, 150 passos, val 0,266) e 125M-classe (126.083.200 params, 300 passos em CPU, val 0,180; **resume real validado** do passo 40→300) | PROTOTYPE, TRAINED | `checkpoints/tiny/training_log.jsonl`, `checkpoints/125m/training_log.jsonl`, `tests/test_training.py` |
 | MoE esparso (top-k, aux loss, capacity) | sim | sim | indireto (via backbone) | IMPLEMENTED, TESTED | `tests/test_moe.py` |
 | Trainer (AdamW, warmup, clip, logging) | sim | sim | sim | IMPLEMENTED, TESTED, TRAINED | log JSONL com loss/lr/grad_norm |
 | Checkpoints (SHA-256, strict load, RNG) | sim | sim | n/a | IMPLEMENTED, TESTED | `tests/test_checkpoint.py` |
@@ -40,8 +40,11 @@ ambiente (requisitos em `docs/SCALING_REQUIREMENTS.md`).
 3. **Nenhum áudio é gerado.** Nenhum vídeo produzido por este repositório
    contém trilha "nativa" — anexar áudio estático e chamar de nativo é
    explicitamente proibido no código (`apolo_zenith/models/audio.py`).
-4. **O protótipo tiny treinado não tem capacidade de linguagem real.** Ele
-   valida a mecânica de treino (loss decrescente, checkpoints, resume);
-   memorizar 23 frases sintéticas não é evidência de capacidade geral.
+4. **Os protótipos treinados (tiny e 125M-classe) não têm capacidade de
+   linguagem real.** Eles validam a mecânica de treino em duas escalas
+   (loss decrescente, checkpoints íntegros com SHA-256, resume, geração
+   coerente a partir do checkpoint); memorizar 23 frases sintéticas não é
+   evidência de capacidade geral. O treino de 125M usou CPU (4 vCPU) com
+   schedule reduzido (300 passos vs. 2.000 da config) — registrado no log.
 5. **Upscale não é geração nativa.** Nenhuma saída é rotulada de resolução
    que não seja a real (ver `probe_video` para verificação de dimensões).
