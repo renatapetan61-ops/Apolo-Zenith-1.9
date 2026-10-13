@@ -141,6 +141,8 @@ class Trainer:
                     if val < self.state.best_val_loss:
                         self.state.best_val_loss = val
                         self._save("best", val)
+                    # periodic latest save: crash/restart resilience (§14.6)
+                    self._save("latest", val)
                     self._log({"event": "eval", "step": self.state.step,
                                "val_loss": val,
                                "best_val_loss": self.state.best_val_loss})

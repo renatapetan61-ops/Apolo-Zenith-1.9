@@ -57,7 +57,16 @@ def main() -> int:
 
     text = corpus_path.read_text(encoding="utf-8")
     tok = ByteTokenizer()
-    tok.train_merges(text, args.merges)
+    if args.resume:
+        # CRITICAL for vocab compatibility: reuse the tokenizer saved next
+        # to the resume checkpoint instead of learning new merges
+        saved_tok = (ROOT / args.resume).parent / "tokenizer.json"
+        if saved_tok.exists():
+            tok = ByteTokenizer.load(saved_tok)
+            print(f"tokenizer reloaded from checkpoint: {saved_tok} "
+                  f"(vocab {tok.vocab_size})")
+    if not tok.merges:
+        tok.train_merges(text, args.merges)
     # keep vocab in sync with config
     mcfg.backbone.vocab_size = tok.vocab_size
 

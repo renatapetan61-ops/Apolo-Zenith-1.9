@@ -10,14 +10,14 @@ ambiente (requisitos em `docs/SCALING_REQUIREMENTS.md`).
 | Componente | Implementado | Testado | Treinado | Estado | Evidência |
 |---|---|---|---|---|---|
 | Tokenizer byte-level + BPE | sim | sim | n/a (treino de merges é determinístico e testado) | IMPLEMENTED, TESTED | `tests/test_tokenizer.py` |
-| Backbone decoder (RoPE, RMSNorm, SwiGLU) | sim | sim | **sim — 2 escalas**: tiny (250.944 params, 150 passos, val 0,266) e 125M-classe (126.083.200 params, 300 passos em CPU, val 0,180; **resume real validado** do passo 40→300) | PROTOTYPE, TRAINED | `checkpoints/tiny/training_log.jsonl`, `checkpoints/125m/training_log.jsonl`, `tests/test_training.py` |
+| Backbone decoder (RoPE, RMSNorm, SwiGLU) | sim | sim | **sim — 2 escalas**: tiny (250.944 params, 150 passos, val 0,266) e 125M-classe (126.083.200 params, **1.000 passos em CPU** com corpus combinacional de 47k frases únicas; val no corpus grande: 0,70→0,54→0,25→**0,224**; **resume real validado 2×** e geração sintetiza combinações NOVAS do template) | PROTOTYPE, TRAINED | `checkpoints/tiny/training_log.jsonl`, `checkpoints/125m/training_log.jsonl`, `tests/test_training.py` |
 | MoE esparso (top-k, aux loss, capacity) | sim | sim | indireto (via backbone) | IMPLEMENTED, TESTED | `tests/test_moe.py` |
 | Trainer (AdamW, warmup, clip, logging) | sim | sim | sim | IMPLEMENTED, TESTED, TRAINED | log JSONL com loss/lr/grad_norm |
 | Checkpoints (SHA-256, strict load, RNG) | sim | sim | n/a | IMPLEMENTED, TESTED | `tests/test_checkpoint.py` |
-| VAE convolucional | sim (arquitetura) | mecânica (shapes, loss ↓ em batch fixo) | **apenas mecânica** — qualidade NÃO validada | IMPLEMENTED, NOT PRODUCTION-TRAINED | `tests/test_vae.py` |
-| Transformador de vídeo latente [B,C,T,H,W] | sim (arquitetura) | forward/ layouts/ debug run | **NÃO** | IMPLEMENTED, NOT TRAINED | `tests/test_video_shapes.py` |
-| Geração de imagem (final) | pipeline sim | **bloqueada por guard até existir pesos treinados** | NÃO | IMPLEMENTED, BLOCKED (dados/GPU) | `tests/test_guards.py` |
-| Geração de vídeo (final) | pipeline sim | **bloqueada por guard** | NÃO | IMPLEMENTED, BLOCKED | `tests/test_guards.py` |
+| VAE convolucional | sim (arquitetura) | mecânica (shapes, loss ↓ em batch fixo) | **sim — escala toy**: 300 passos em imagens sintéticas 16×16, rec_mse 0,50→0,02 (`checkpoints/media/`) | IMPLEMENTED, TRAINED (toy); qualidade de produção NÃO validada | `tests/test_vae.py`, `tests/test_media_engines.py` |
+| Transformador de vídeo latente [B,C,T,H,W] | sim (arquitetura) | forward/ layouts/ debug run | **sim — escala toy**: 300 passos em vídeos sintéticos 4-frame, eps_mse 1,43→0,99 | IMPLEMENTED, TRAINED (toy) | `tests/test_video_shapes.py`, `checkpoints/media/media_training_log.jsonl` |
+| Geração de imagem (final) | pipeline sim | **sim — guard passou com componentes toy-treinados**: 16×16 gerada, prompts distintos → saídas distintas (dist. cosseno 0,0499) | **sim — toy** (400 passos denoiser + 300 VAE) | IMPLEMENTED, TRAINED (toy); qualidade mínima — ver nota | `checkpoints/media/media_training_report.json` |
+| Geração de vídeo (final) | pipeline sim | **sim — guard passou**: MP4 real 4 frames @4fps verificado por probe | **sim — toy** | IMPLEMENTED, TRAINED (toy) | `checkpoints/media/generated_media_video.mp4` |
 | Export MP4 + probe | sim | sim (frames/fps/duração reais) | n/a | IMPLEMENTED, TESTED | `tests/test_video_shapes.py` |
 | Modo debug (`--debug-generation`) | sim | sim | n/a | IMPLEMENTED, TESTED | artefatos em `debug/` |
 | Áudio | **não** (falha explicitamente) | n/a | NÃO | PLANNED | `apolo_zenith/models/audio.py` |
@@ -33,18 +33,21 @@ ambiente (requisitos em `docs/SCALING_REQUIREMENTS.md`).
    `configs/apolo_zenith_1_9.yaml` é um alvo de design; os números de
    parâmetros são calculados analiticamente e a fórmula é validada contra
    instanciações reais pequenas (`tests/test_plan_math.py`).
-2. **Não há geração de imagem/vídeo "pronta"**: os pipelines recusam-se a
-   produzir saída final com pesos não treinados (`UntrainedComponentError`).
-   O modo debug executa o pipeline, mas marca todos os artefatos como
-   "UNTRAINED — NOT A VALID GENERATION".
+2. **Não há geração de imagem/vídeo de qualidade de produção.** Os guards
+   ainda bloqueiam componentes aleatórios (`UntrainedComponentError`); após o
+   treino toy de `checkpoints/media/` eles passam legitimamente, mas a
+   qualidade é mínima (16×16, formas sintéticas, ~1M params, centenas de
+   passos em CPU). Mídia utilizável exige GPU + datasets licenciados em
+   larga escala (`docs/SCALING_REQUIREMENTS.md`).
 3. **Nenhum áudio é gerado.** Nenhum vídeo produzido por este repositório
    contém trilha "nativa" — anexar áudio estático e chamar de nativo é
    explicitamente proibido no código (`apolo_zenith/models/audio.py`).
 4. **Os protótipos treinados (tiny e 125M-classe) não têm capacidade de
    linguagem real.** Eles validam a mecânica de treino em duas escalas
    (loss decrescente, checkpoints íntegros com SHA-256, resume, geração
-   coerente a partir do checkpoint); memorizar 23 frases sintéticas não é
-   evidência de capacidade geral. O treino de 125M usou CPU (4 vCPU) com
-   schedule reduzido (300 passos vs. 2.000 da config) — registrado no log.
+   a partir do checkpoint). O 125M rodou 1.000 passos (schedule reduzido
+   vs. 2.000 da config) em corpus sintético combinacional: o modelo aprende
+   o TEMPLATE das frases e sintetiza combinações novas, mas nada disso é
+   capacidade geral de linguagem.
 5. **Upscale não é geração nativa.** Nenhuma saída é rotulada de resolução
    que não seja a real (ver `probe_video` para verificação de dimensões).
